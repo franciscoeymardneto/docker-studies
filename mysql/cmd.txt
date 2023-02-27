@@ -1,0 +1,1 @@
+docker run -dit -e MYSQL_ROOT_PASSWORD=Senha123 -p 3306:3306 -v ./src:/var/lib/mysql --name MySQL-A mysql 
