@@ -1,1 +1,18 @@
-FROM mysql
+FROM mysql:8
+
+# Set the MySQL root password
+ENV MYSQL_ROOT_PASSWORD Senha123
+
+# ENV MYSQL_DATA_DIR /var/lib/mysql
+
+# RUN mkdir -p $MYSQL_DATA_DIR
+
+# RUN chown -R mysql:mysql $MYSQL_DATA_DIR
+
+# VOLUME $MYSQL_DATA_DIR
+
+# EXPOSE 3306
+
+# CMD ["mysqld"]
+
+ENTRYPOINT [ "docker","run", "-dit", "-p", "3306:3306", "-v", "./src:/var/lib/mysql", "--name", "MySQL-A", "devmysql" ]

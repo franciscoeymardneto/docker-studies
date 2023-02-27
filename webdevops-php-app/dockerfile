@@ -1,7 +1,7 @@
 FROM webdevops/php-apache:7.4-alpine
 WORKDIR /app
 COPY ./src /app
-VOLUME [ "/webdevops/php/app" ]
+VOLUME /app
 
 ENV COMPOSER_VERSION=2
 
