@@ -1,59 +1,7 @@
 services:
-  proxy:
-    image: proxy-app
-    deploy:
-      replicas: 1
-      placement:
-        constraints:
-        - node.labels.dc == proxy-data
+  server:
+    image: webdevops/php-apache:7.4-alpine
     ports:
-      - "4500:4500"
-
-  data:
-    image: mysql
-    environment:
-      MYSQL_ROOT_PASSWORD: "Senha123"
-      MYSQL_DATABASE: "meubanco"
-    deploy:
-      replicas: 1
-      placement:
-        constraints:
-        - node.labels.dc == proxy-data
-    ports:
-      - "3306:3306"
+      - "80:80"
     volumes:
-      - data:/var/lib/mysql/
-
-  web:
-   image: webdevops/php-apache:7.4-alpine
-   ports:
-     - "80:80"
-   volumes:
-     - app:/app
-   deploy:
-     replicas: 3
-     resources:
-       limits:
-         cpus: "0.1"
-         memory: 50M
-
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin
-    environment:
-      MYSQL_ROOT_PASSWORD: "Senha123"
-      PMA_HOST: "10.0.0.199"
-    deploy:
-      replicas: 1
-      resources:
-        limits:
-          cpus: "0.1"
-          memory: 50M
-      placement:
-        constraints:
-          - node.labels.dc == proxy-data
-      ports:
-        - "8080:80"
-
-volumes:
-  app:
-  data:
+      -
