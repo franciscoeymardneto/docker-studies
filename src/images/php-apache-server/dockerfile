@@ -69,10 +69,19 @@ RUN apt-get update && \
 # Enable the necessary Apache modules
 RUN a2enmod rewrite && \
     a2enmod headers && \
-    a2enmod expires
+    a2enmod expires \
+    a2enmod ssl
+
+# Set the document root directory
+ENV APACHE_DOCUMENT_ROOT /var/www
 
 # Copy your application code into the container
-COPY . /var/www/html
+COPY ./../../service/www/site.host.soft /var/www/site.host.soft
+COPY ./../../service/www/help.host.soft /var/www/help.host.soft
+COPY ./../../service/www/api.host.soft /var/www/api.host.soft
+
+# Copy applications config files to sites available 
+
 
 # Set the working directory to your application code
 WORKDIR /var/www/html
