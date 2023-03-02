@@ -81,13 +81,19 @@ COPY ./../../service/www/help.host.soft /var/www/help.host.soft
 COPY ./../../service/www/api.host.soft /var/www/api.host.soft
 
 # Copy applications config files to sites available 
+COPY ./../../service/www/site.host.soft/site.host.soft.conf /etc/apache2/sites-available
+COPY ./../../service/www/help.host.soft/help.host.soft.conf /etc/apache2/sites-available
+COPY ./../../service/www/api.host.soft/api.host.soft.conf /etc/apache2/sites-available
+
+
 
 
 # Set the working directory to your application code
-WORKDIR /var/www/html
+WORKDIR /var/www
 
 # Expose port 80 for HTTP traffic
 EXPOSE 80
+EXPOSE 443
 
 # Start Apache when the container starts
 CMD ["apache2-foreground"]
