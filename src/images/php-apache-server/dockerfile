@@ -78,6 +78,9 @@ RUN a2enmod rewrite && \
 # allow apache to read each project configs instead a global
 RUN rpl "AllowOverride None" "AllowOverride All" /etc/apache2/apache2.conf
 
+#copy php config init
+COPY "./php.ini.txt" "$PHP_INI_DIR/php.ini"
+
 # configs depend on enviorment
 RUN if [ "$APP_ENV" = "production" ] ; then \
         mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" \
