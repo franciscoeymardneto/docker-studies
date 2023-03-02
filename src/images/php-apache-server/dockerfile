@@ -4,6 +4,9 @@ ARG PHP_VERSION=7.4
 # Use the official PHP and Apache image as the base image for the specified version
 FROM php:${PHP_VERSION}-apache
 
+#enviorment varible to define the enviorment
+ENV APP_ENV=${APP_ENV:-development}
+
 # Install the necessary packages using apt-get
 RUN apt-get update && \
     apt-get install -y \
@@ -75,6 +78,16 @@ RUN a2enmod rewrite && \
 # allow apache to read each project configs instead a global
 RUN rpl "AllowOverride None" "AllowOverride All" /etc/apache2/apache2.conf
 
+# configs depend on enviorment
+RUN if [ "$APP_ENV" = "production" ] ; then \
+        mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" \
+        echo "display_errors = Off" >> "$PHP_INI_DIR/php.ini" \
+        echo "error_reporting = E_ALL & ~E_DEPRECATED & ~E_STRICT & ~E_NOTICE" >> "$PHP_INI_DIR/php.ini" \
+    else \
+       echo "display_errors = On" >> "$PHP_INI_DIR/php.ini" \
+       echo "error_reporting = E_ALL" >> "$PHP_INI_DIR/php.ini" \ 
+    ; fi
+
 # Set the document root directory
 ENV APACHE_DOCUMENT_ROOT /var/www
 
@@ -89,6 +102,42 @@ COPY ./../../service/www/help.host.soft/help.host.soft.conf /etc/apache2/sites-a
 COPY ./../../service/www/api.host.soft/api.host.soft.conf /etc/apache2/sites-available
 
 
+
+
+
+
+
+# Set up SSL certificates
+RUN openssl req -new -newkey rsa:4096 -days 365 -nodes -x509 \
+    -subj "/C=US/ST=State/L=City/O=Organization/OU=Department/CN=site.host.soft" \
+    -keyout /etc/ssl/private/site.host.soft.key \
+    -out /etc/ssl/certs/site.host.soft.crt
+RUN openssl req -new -newkey rsa:4096 -days 365 -nodes -x509 \
+    -subj "/C=US/ST=State/L=City/O=Organization/OU=Department/CN=help.host.soft" \
+    -keyout /etc/ssl/private/help.host.soft.key \
+    -out /etc/ssl/certs/help.host.soft.crt
+RUN openssl req -new -newkey rsa:4096 -days 365 -nodes -x509 \
+    -subj "/C=US/ST=State/L=City/O=Organization/OU=Department/CN=api.host.soft" \
+    -keyout /etc/ssl/private/api.host.soft.key \
+    -out /etc/ssl/certs/api.host.soft.crt
+
+# Copy SSL configuration files to container
+COPY ssl-params.conf /etc/apache2/conf-available/
+COPY default-ssl-site.host.soft.conf /etc/apache2/sites-available/
+COPY default-ssl-help.host.soft.conf /etc/apache2/sites-available/
+COPY default-ssl-api.host.soft.conf /etc/apache2/sites-available/
+
+# Enable SSL
+RUN a2enmod headers
+RUN a2enmod ssl
+RUN a2enconf ssl-params
+RUN a2ensite default-ssl-site.host.soft.conf
+RUN a2ensite default-ssl-help.host.soft.conf
+RUN a2ensite default-ssl-api.host.soft.conf
+
+# Expose ports
+EXPOSE 80
+EXPOSE 443
 
 
 
