@@ -73,7 +73,8 @@ RUN apt-get update && \
 RUN a2enmod rewrite && \
     a2enmod headers && \
     a2enmod expires \
-    a2enmod ssl
+    a2enmod ssl \
+    a2enconf ssl-params
 
 # allow apache to read each project configs instead a global
 RUN rpl "AllowOverride None" "AllowOverride All" /etc/apache2/apache2.conf
@@ -95,19 +96,14 @@ RUN if [ "$APP_ENV" = "production" ] ; then \
 ENV APACHE_DOCUMENT_ROOT /var/www
 
 # Copy your application code into the container
-# COPY ./../../service/www/site.host.soft /var/www/site.host.soft
-# COPY ./../../service/www/help.host.soft /var/www/help.host.soft
-# COPY ./../../service/www/api.host.soft /var/www/api.host.soft
+COPY ./../../service/www/site.host.soft /var/www/site.host.soft
+COPY ./../../service/www/help.host.soft /var/www/help.host.soft
+COPY ./../../service/www/api.host.soft /var/www/api.host.soft
 
 # Copy applications config files to sites available 
 COPY ./../../service/www/site.host.soft/site.host.soft.conf /etc/apache2/sites-available
 COPY ./../../service/www/help.host.soft/help.host.soft.conf /etc/apache2/sites-available
 COPY ./../../service/www/api.host.soft/api.host.soft.conf /etc/apache2/sites-available
-
-
-
-
-
 
 
 # Set up SSL certificates
@@ -130,19 +126,10 @@ COPY default-ssl-site.host.soft.conf /etc/apache2/sites-available/
 COPY default-ssl-help.host.soft.conf /etc/apache2/sites-available/
 COPY default-ssl-api.host.soft.conf /etc/apache2/sites-available/
 
-# Enable SSL
-RUN a2enmod headers
-RUN a2enmod ssl
-RUN a2enconf ssl-params
+# Enable SSL sites
 RUN a2ensite default-ssl-site.host.soft.conf
 RUN a2ensite default-ssl-help.host.soft.conf
 RUN a2ensite default-ssl-api.host.soft.conf
-
-# Expose ports
-EXPOSE 80
-EXPOSE 443
-
-
 
 # Set the working directory to your application code
 WORKDIR /var/www
