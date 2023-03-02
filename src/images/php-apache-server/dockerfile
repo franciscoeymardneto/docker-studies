@@ -72,18 +72,22 @@ RUN a2enmod rewrite && \
     a2enmod expires \
     a2enmod ssl
 
+# allow apache to read each project configs instead a global
+RUN rpl "AllowOverride None" "AllowOverride All" /etc/apache2/apache2.conf
+
 # Set the document root directory
 ENV APACHE_DOCUMENT_ROOT /var/www
 
 # Copy your application code into the container
-COPY ./../../service/www/site.host.soft /var/www/site.host.soft
-COPY ./../../service/www/help.host.soft /var/www/help.host.soft
-COPY ./../../service/www/api.host.soft /var/www/api.host.soft
+# COPY ./../../service/www/site.host.soft /var/www/site.host.soft
+# COPY ./../../service/www/help.host.soft /var/www/help.host.soft
+# COPY ./../../service/www/api.host.soft /var/www/api.host.soft
 
 # Copy applications config files to sites available 
 COPY ./../../service/www/site.host.soft/site.host.soft.conf /etc/apache2/sites-available
 COPY ./../../service/www/help.host.soft/help.host.soft.conf /etc/apache2/sites-available
 COPY ./../../service/www/api.host.soft/api.host.soft.conf /etc/apache2/sites-available
+
 
 
 
