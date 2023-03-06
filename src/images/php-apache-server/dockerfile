@@ -1,14 +1,15 @@
-# Define variables for the PHP version and package version numbers
+# Define variables for the PHP version and environment
 ARG PHP_VERSION=7.4
+ARG APP_ENV
 
 # Use the official PHP and Apache image as the base image for the specified version
 FROM php:7.4-apache
 
-#enviorment varible to define the enviorment
-ENV APP_ENV=${APP_ENV:-development}
+# #enviorment varible to define the enviorment
+# ENV APP_ENV=${APP_ENV}
 
 # Add the install-php-extensions script for add php extensios
-ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
+ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions/ /usr/local/bin/
 
 # Install the necessary packages 
 RUN apt-get update && \
@@ -63,52 +64,40 @@ RUN apt-get update && \
     xsl \
     zip
 
-# RUN apt-get install -y \
-#     zlib1g-dev \
-#     vim \
-#     nano \
-#     git \
-#     libpng-dev \
-#     libonig-dev \
-#     libxml2-dev \
-#     libzip-dev \
-#     zip \
-#     unzip && \
-#     apt-get clean
-
-
-
-
 # Enable the necessary Apache modules
-# RUN a2enmod rewrite && \
-#     a2enmod headers && \
-#     a2enmod expires && \
-#     a2enmod ssl \
-#    a2enconf ssl-params
+RUN a2enmod rewrite && \
+    a2enmod headers && \
+    a2enmod expires && \
+    a2enmod ssl 
+
+# Install RPL
+RUN apt-get update -y && apt-get install -y rpl && apt-get clean 
 
 # allow apache to read each project configs instead a global
-# RUN rpl "AllowOverride None" "AllowOverride All" /etc/apache2/apache2.conf
+RUN rpl "AllowOverride None" "AllowOverride All" /etc/apache2/apache2.conf
 
 #copy php config init
 COPY "./php.ini.txt" "$PHP_INI_DIR/php.ini"
 
 # configs depend on enviorment
-RUN if [ "$APP_ENV" = "production" ] ; then \
-    mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" \
-    echo "display_errors = Off" >> "$PHP_INI_DIR/php.ini" \
-    echo "error_reporting = E_ALL & ~E_DEPRECATED & ~E_STRICT & ~E_NOTICE" >> "$PHP_INI_DIR/php.ini" \
+
+RUN if ["$APP_ENV" = "production"]; then \
+        echo "display_errors = Off" >> "$PHP_INI_DIR/php.ini \n" \
+        echo "display_errors = Off" >> "$PHP_INI_DIR/php.ini \n" \
+        echo "error_reporting = E_ALL & ~E_DEPRECATED & ~E_STRICT & ~E_NOTICE" >> "$PHP_INI_DIR/php.ini \n"; \
     else \
-    echo "display_errors = On" >> "$PHP_INI_DIR/php.ini" \
-    echo "error_reporting = E_ALL" >> "$PHP_INI_DIR/php.ini" \ 
+        echo "display_errors = On" >> "$PHP_INI_DIR/php.ini \n" \
+        echo "error_reporting = E_ALL" >> "$PHP_INI_DIR/php.ini \n" \ 
     ; fi
+
+# Copy your application code into the container
+COPY service/www/site.host.soft /var/www/site.host.soft
+COPY service/www/help.host.soft /var/www/help.host.soft
+COPY service/www/api.host.soft /var/www/api.host.soft
+
 
 # Set the document root directory
 ENV APACHE_DOCUMENT_ROOT /var/www
-
-# # Copy your application code into the container
-# COPY /service/www/site.host.soft /var/www/site.host.soft
-# COPY /service/www/help.host.soft /var/www/help.host.soft
-# COPY /service/www/api.host.soft /var/www/api.host.soft
 
 # # Copy applications config files to sites available 
 # COPY /service/www/site.host.soft/site.host.soft.conf /etc/apache2/sites-available
