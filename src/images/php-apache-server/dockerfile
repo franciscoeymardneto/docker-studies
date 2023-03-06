@@ -7,89 +7,99 @@ FROM php:7.4-apache
 #enviorment varible to define the enviorment
 ENV APP_ENV=${APP_ENV:-development}
 
-# Install the necessary packages using apt-get
+# Add the install-php-extensions script for add php extensios
+ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
+
+# Install the necessary packages 
 RUN apt-get update && \
     apt-get clean && \
-    apt-get install -y \
-    php7.4-calendar \
-    php7.4-common \
-    php7.4-ctype \
-    php7.4-curl \
-    php7.4-date \
-    php7.4-dom \
-    php7.4-exif \
-    php7.4-ffi \
-    php7.4-fileinfo \
-    php7.4-filter \
-    php7.4-ftp \
-    php7.4-gd \
-    php7.4-gettext \
-    php7.4-hash \
-    php7.4-iconv \
-    php7.4-json \
-    php7.4-libxml \
-    php7.4-mbstring \
-    php7.4-mysqli \
-    php7.4-mysqlnd \
-    php7.4-opcache \
-    php7.4-openssl \
-    php7.4-pcre \
-    php7.4-pdo \
-    php7.4-pdo_mysql \
-    php7.4-pdo_sqlite \
-    php7.4-phar \
-    php7.4-posix \
-    php7.4-readline \
-    php7.4-reflection \
-    php7.4-session \
-    php7.4-shmop \
-    php7.4-simplexml \
-    php7.4-sockets \
-    php7.4-sodium \
-    php7.4-spl \
-    php7.4-sqlite3 \
-    php7.4-standard \
-    php7.4-sysvmsg \
-    php7.4-sysvsem \
-    php7.4-sysvshm \
-    php7.4-tokenizer \
-    php7.4-xml \
-    php7.4-xmlreader \
-    php7.4-xmlwriter \
-    php7.4-xsl \
-    php7.4-zip \
-    zlib1g-dev \
-    vim \
-    nano \
-    git \
-    libpng-dev \
-    libonig-dev \
-    libxml2-dev \
-    libzip-dev \
-    zip \
-    unzip
+    chmod +x /usr/local/bin/install-php-extensions && \
+    install-php-extensions \
+    calendar \
+    #   common \
+    ctype \
+    curl \
+    date \
+    dom \
+    exif \
+    ffi \
+    fileinfo \
+    filter \
+    ftp \
+    gd \
+    gettext \
+    hash \
+    iconv \
+    json \
+    libxml \
+    mbstring \
+    mysqli \
+    mysqlnd \
+    opcache \
+    openssl \
+    pcre \
+    pdo \
+    pdo_mysql \
+    pdo_sqlite \
+    phar \
+    posix \
+    readline \
+    reflection \
+    session \
+    shmop \
+    simplexml \
+    sockets \
+    sodium \
+    spl \
+    sqlite3 \
+    standard \
+    sysvmsg \
+    sysvsem \
+    sysvshm \
+    tokenizer \
+    xml \
+    xmlreader \
+    xmlwriter \
+    xsl \
+    zip
+
+# RUN apt-get install -y \
+#     zlib1g-dev \
+#     vim \
+#     nano \
+#     git \
+#     libpng-dev \
+#     libonig-dev \
+#     libxml2-dev \
+#     libzip-dev \
+#     zip \
+#     unzip && \
+#     apt-get clean
+
+
+
 
 # Enable the necessary Apache modules
-RUN a2enmod rewrite && \
-    a2enmod headers && \
-    a2enmod expires \
-    a2enmod ssl \
-    a2enconf ssl-params
+# RUN a2enmod rewrite && \
+#     a2enmod headers && \
+#     a2enmod expires && \
+#     a2enmod ssl \
+#    a2enconf ssl-params
 
 # allow apache to read each project configs instead a global
-RUN rpl "AllowOverride None" "AllowOverride All" /etc/apache2/apache2.conf
+# RUN rpl "AllowOverride None" "AllowOverride All" /etc/apache2/apache2.conf
 
 #copy php config init
 COPY "./php.ini.txt" "$PHP_INI_DIR/php.ini"
 
 # configs depend on enviorment
 RUN if [ "$APP_ENV" = "production" ] ; then \
-        mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" \
-        echo "display_errors = Off" >> "$PHP_INI_DIR/php.ini" \
-        echo "error_reporting = E_ALL & ~E_DEPRECATED & ~E_STRICT & ~E_NOTICE" >> "$PHP_INI_DIR/php.ini" \
+    mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" \
+    echo "display_errors = Off" >> "$PHP_INI_DIR/php.ini" \
+    echo "error_reporting = E_ALL & ~E_DEPRECATED & ~E_STRICT & ~E_NOTICE" >> "$PHP_INI_DIR/php.ini" \
     else \
-       echo "display_errors = On" >> "$PHP_INI_DIR/php.ini" \
-       echo "error_reporting = E_ALL" >> "$PHP_INI_DIR/php.ini" \ 
+    echo "display_errors = On" >> "$PHP_INI_DIR/php.ini" \
+    echo "error_reporting = E_ALL" >> "$PHP_INI_DIR/php.ini" \ 
     ; fi
 
 # Set the document root directory
@@ -127,9 +137,9 @@ ENV APACHE_DOCUMENT_ROOT /var/www
 # COPY default-ssl-api.host.soft.conf /etc/apache2/sites-available/
 
 # Enable SSL sites
-RUN a2ensite default-ssl-site.host.soft.conf
-RUN a2ensite default-ssl-help.host.soft.conf
-RUN a2ensite default-ssl-api.host.soft.conf
+# RUN a2ensite default-ssl-site.host.soft.conf
+# RUN a2ensite default-ssl-help.host.soft.conf
+# RUN a2ensite default-ssl-api.host.soft.conf
 
 # Set the working directory to your application code
 WORKDIR /var/www
