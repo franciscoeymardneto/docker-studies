@@ -105,6 +105,7 @@ COPY ./start-apps/api.host.soft/api.host.soft.conf /etc/apache2/sites-available
 RUN a2ensite site.host.soft.conf
 RUN a2ensite help.host.soft.conf
 RUN a2ensite api.host.soft.conf
+RUN a2dissite 000-default.conf
 
 # Set the document root directory
 ENV APACHE_DOCUMENT_ROOT /var/www
