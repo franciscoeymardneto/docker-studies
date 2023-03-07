@@ -107,6 +107,13 @@ RUN a2ensite help.host.soft.conf
 RUN a2ensite api.host.soft.conf
 RUN a2dissite 000-default.conf
 
+# Até aqui tudo funcionando perfeitamente, amanhã conferir com configurações da digital ocean, alinhar arequivos .conf do apache 
+# E tentar subir a maquina produção com os containers
+#
+#
+#
+#
+
 # Set the document root directory
 ENV APACHE_DOCUMENT_ROOT /var/www
 
