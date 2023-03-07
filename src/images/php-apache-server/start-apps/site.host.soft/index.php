@@ -1,2 +1,2 @@
 <?php
-    echo "Olá SITE!"
+    echo "Olá SITE!";

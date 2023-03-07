@@ -91,18 +91,25 @@ RUN if ["$APP_ENV" = "production"]; then \
     ; fi
 
 # Copy your application code into the container
-COPY service/www/site.host.soft /var/www/site.host.soft
-COPY service/www/help.host.soft /var/www/help.host.soft
-COPY service/www/api.host.soft /var/www/api.host.soft
+COPY ./start-apps/site.host.soft /var/www/site.host.soft
+COPY ./start-apps/help.host.soft /var/www/help.host.soft
+COPY ./start-apps/api.host.soft /var/www/api.host.soft
 
+# # Copy applications config files to sites available 
+COPY ./start-apps/site.host.soft/site.host.soft.conf /etc/apache2/sites-available
+COPY ./start-apps/help.host.soft/help.host.soft.conf /etc/apache2/sites-available
+COPY ./start-apps/api.host.soft/api.host.soft.conf /etc/apache2/sites-available
+
+
+# Enable sites
+RUN a2ensite site.host.soft.conf
+RUN a2ensite help.host.soft.conf
+RUN a2ensite api.host.soft.conf
 
 # Set the document root directory
 ENV APACHE_DOCUMENT_ROOT /var/www
 
-# # Copy applications config files to sites available 
-# COPY /service/www/site.host.soft/site.host.soft.conf /etc/apache2/sites-available
-# COPY /service/www/help.host.soft/help.host.soft.conf /etc/apache2/sites-available
-# COPY /service/www/api.host.soft/api.host.soft.conf /etc/apache2/sites-available
+
 
 
 # # Set up SSL certificates

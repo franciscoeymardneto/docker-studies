@@ -1,2 +1,2 @@
 <?php
-    echo "Olá API!"
+    echo "Olá API!";
